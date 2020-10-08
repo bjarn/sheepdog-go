@@ -13,11 +13,9 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "apollo",
+	Use:   "sheepdog",
 	Short: "A blazing fast local development environment for MacOS written in Go",
-	Long: `Apollo is a suite of tools to improve your local development environment in
-terms of speed, ease of use and comprehensiveness.
-It contains tools like MySQL, Redis, PHP, Nginx, Elasticsearch and more.`
+	Long: `Sheepdog is a blazing fast local development environment for MacOS written in Go`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -36,7 +34,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.apollo.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sheepdog.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -56,9 +54,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".apollo" (without extension).
+		// Search config in home directory with name ".sheepdog" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".apollo")
+		viper.SetConfigName(".sheepdog")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
