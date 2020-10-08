@@ -17,18 +17,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"fmt"
+	"github.com/bjarn/sheepdog/service"
 
 	"github.com/spf13/cobra"
 )
 
 // restartCmd represents the restart command
 var restartCmd = &cobra.Command{
-	Use:   "restart",
+	Use:   "restart [service]",
 	Short: "Restart a service",
 	Long: `Restart a service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("restart called")
+		if len(args) > 0 {
+			service.Restart(args[0])
+		}
+		service.RestartAll()
 	},
 }
 

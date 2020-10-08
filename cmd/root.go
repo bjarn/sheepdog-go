@@ -15,7 +15,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "sheepdog",
 	Short: "A blazing fast local development environment for MacOS written in Go",
-	Long: `Sheepdog is a blazing fast local development environment for MacOS written in Go`,
+	Long: `Sheepdog is a blazing fast local development environment for MacOS written in Go.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
