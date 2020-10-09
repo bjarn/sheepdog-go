@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/bjarn/sheepdog/command"
+	"github.com/bjarn/sheepdog/pkg/command"
 	"os/exec"
 )
 

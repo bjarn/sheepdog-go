@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/bjarn/sheepdog/command"
+import "github.com/bjarn/sheepdog/pkg/command"
 
 func RequireSudo() error {
 	cmd := command.Sudo("-v")

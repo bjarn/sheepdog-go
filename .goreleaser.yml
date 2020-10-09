@@ -1,0 +1,23 @@
+project_name: sheepdog
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - <<: &build_defaults
+      binary: bin/sheepdog
+      main: ./cmd/sheepdog
+    id: macos
+    goos: [darwin]
+    goarch: [amd64]
+
+archives:
+  - id: nix
+    builds: [ macos ]
+    wrap_in_directory: true
+    replacements:
+      darwin: macOS
+    format: tar.gz
+    files:
+      - LICENSE

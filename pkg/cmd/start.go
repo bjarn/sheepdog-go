@@ -17,34 +17,34 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"github.com/bjarn/sheepdog/service"
+	"github.com/bjarn/sheepdog/pkg/service"
 
 	"github.com/spf13/cobra"
 )
 
-// restartCmd represents the restart command
-var restartCmd = &cobra.Command{
-	Use:   "restart [service]",
-	Short: "Restart a service",
-	Long: `Restart a service`,
+// startCmd represents the start command
+var startCmd = &cobra.Command{
+	Use:   "start [service]",
+	Short: "Start a service",
+	Long: `Start a service`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
 			service.Restart(args[0])
 		}
-		service.RestartAll()
+		service.StartAll()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(restartCmd)
+	rootCmd.AddCommand(startCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// restartCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// restartCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
