@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/bjarn/sheepdog/utils"
 )
 
 func Restart(serviceName string)  {
@@ -14,6 +15,11 @@ func Restart(serviceName string)  {
 }
 
 func RestartAll() {
+	err := utils.RequireSudo()
+	if err != nil {
+		return
+	}
+
 	for _, service := range Services {
 		fmt.Printf("Restarting %s... ", service.Name)
 		err := service.Restart()
@@ -26,6 +32,11 @@ func RestartAll() {
 }
 
 func StopAll() {
+	err := utils.RequireSudo()
+	if err != nil {
+		return
+	}
+
 	for _, service := range Services {
 		fmt.Printf("Stopping %s... ", service.Name)
 		err := service.Stop()
@@ -38,6 +49,11 @@ func StopAll() {
 }
 
 func StartAll() {
+	err := utils.RequireSudo()
+	if err != nil {
+		return
+	}
+
 	for _, service := range Services {
 		fmt.Printf("Starting %s... ", service.Name)
 		err := service.Start()
