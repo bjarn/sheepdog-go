@@ -17,8 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/bjarn/sheepdog/pkg/install"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,7 @@ var installCmd = &cobra.Command{
 	Short: "Run the initial setup of Sheepdog",
 	Long: `Run the initial setup of Sheepdog.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("install called")
+		install.Run()
 	},
 }
 
