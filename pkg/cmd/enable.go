@@ -25,13 +25,9 @@ import (
 // enableCmd represents the enable command
 var enableCmd = &cobra.Command{
 	Use:   "enable",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Enable a service",
+	Long: `Enabling a services includes it in the active services list. This will make sure that the service will
+start alongside all other active services.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("enable called")
 	},

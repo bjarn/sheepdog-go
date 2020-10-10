@@ -26,8 +26,8 @@ import (
 var disableCmd = &cobra.Command{
 	Use:   "disable",
 	Short: "Disable a service",
-	Long: `Disable a service. Possible options are:
-Nginx, PHP, MySQL, Xdebug, Elasticsearch, Redis, RabbitMq, Memcache, Ioncube`,
+	Long: `Disabling a services removes it from the active services list. This will make sure that the service will
+not start alongside all other active services.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("disable called")
 	},

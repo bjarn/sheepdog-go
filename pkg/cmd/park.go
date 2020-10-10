@@ -25,13 +25,8 @@ import (
 // parkCmd represents the park command
 var parkCmd = &cobra.Command{
 	Use:   "park",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Park the current working directory",
+	Long: `Park the current working directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("park called")
 	},

@@ -12,38 +12,37 @@ type Service struct {
 
 var Services = []Service{Nginx, DnsMasq, MySql57, Redis, Mailhog}
 
-// Restart the service using Brew service
-func (service Service) Restart() error {
+type Action string
+
+const (
+	StartAction Action = "start"
+	StopAction Action = "stop"
+	RestartAction Action = "restart"
+)
+
+func (service Service) Control(action Action) error {
 	var cmd *exec.Cmd
+
 	if service.RequireRoot {
-		cmd = command.Sudo("brew", "services", "restart", service.Name)
+		cmd = command.Sudo("brew", "services", string(action), service.Name)
 	} else {
-		cmd = command.Brew("services", "restart", service.Name)
+		cmd = command.Brew("services", string(action), service.Name)
 	}
 
 	return cmd.Run()
+}
+
+// Restart the service using Brew service
+func (service Service) Restart() error {
+	return service.Control(RestartAction)
 }
 
 // Start the service using Brew service
 func (service Service) Start() error {
-	var cmd *exec.Cmd
-	if service.RequireRoot {
-		cmd = command.Sudo("brew", "services", "start", service.Name)
-	} else {
-		cmd = command.Brew("services", "start", service.Name)
-	}
-
-	return cmd.Run()
+	return service.Control(StartAction)
 }
 
 // Stop the service using Brew service
 func (service Service) Stop() error {
-	var cmd *exec.Cmd
-	if service.RequireRoot {
-		cmd = command.Sudo("brew", "services", "stop", service.Name)
-	} else {
-		cmd = command.Brew("services", "stop", service.Name)
-	}
-
-	return cmd.Run()
+	return service.Control(StopAction)
 }

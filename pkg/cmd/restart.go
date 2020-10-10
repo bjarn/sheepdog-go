@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"fmt"
 	"github.com/bjarn/sheepdog/pkg/service"
 
 	"github.com/spf13/cobra"
@@ -26,12 +27,25 @@ import (
 var restartCmd = &cobra.Command{
 	Use:   "restart [service]",
 	Short: "Restart a service",
-	Long: `Restart a service`,
+	Long:  `Restart a service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			service.Restart(args[0])
+		if args[0] == "" {
+			service.RestartAll()
+			return
 		}
-		service.RestartAll()
+
+		switch args[0] {
+		case service.Nginx.Name, service.MySql57.Name, service.MySql80.Name,
+			service.Redis.Name, service.Mailhog.Name, service.DnsMasq.Name:
+			for _, s := range service.Services {
+				if s.Name == args[0] {
+					service.RestartSingle(s)
+				}
+			}
+			break
+		default:
+			fmt.Printf("Service is invalid.\n")
+		}
 	},
 }
 
