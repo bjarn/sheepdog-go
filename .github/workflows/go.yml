@@ -26,7 +26,7 @@ jobs:
         fi
 
     - name: Build Sheepdog
-      run: cd cmd/ && go build -v sheepdog
+      run: cd cmd/sheepdog/ && go build -v .
 
     - name: Test Sheepdog
-      run: cd cmd/ && go test -v sheepdog
+      run: cd cmd/sheepdog/ && go test -v
