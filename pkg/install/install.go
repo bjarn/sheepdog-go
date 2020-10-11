@@ -72,7 +72,7 @@ func Run() {
 			configureElasticsearchNginxConf(answers.Domain)
 		}
 		if optionalService == "MailHog" {
-			configureMailhogNginxConf(answers.Domain)
+			configureMailHogNginxConf(answers.Domain)
 		}
 	}
 
