@@ -157,8 +157,8 @@ func configureElasticsearchNginxConf(domain string) {
 	fmt.Print("Done")
 }
 
-// Configure Mailhog Virtual Host Config
-func configureMailhogNginxConf(domain string) {
+// Configure MailHog Virtual Host Config
+func configureMailHogNginxConf(domain string) {
 	fmt.Printf("\n👉 Configuring MailHog... ")
 	file, err := os.Create("/usr/local/etc/nginx/sheepdog/apps/mailhog.conf")
 
