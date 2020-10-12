@@ -3,6 +3,7 @@ package install
 import (
 	"fmt"
 	"github.com/bjarn/sheepdog/internal/templates/stubs"
+	"github.com/bjarn/sheepdog/pkg/brew"
 	"github.com/bjarn/sheepdog/pkg/command"
 	"github.com/bjarn/sheepdog/utils"
 	"os"
@@ -43,6 +44,13 @@ var qs = []*survey.Question{
 			Options: []string{"Redis", "Elasticsearch", "MailHog"},
 		},
 	},
+	{
+		Name: "apps",
+		Prompt: &survey.MultiSelect{
+			Message: "Tools and apps:",
+			Options: []string{"wp-cli", "magerun", "magerun2", "drush"},
+		},
+	},
 }
 
 // Perform the survey on the user and install (when still needed) and configure the services included in
@@ -55,6 +63,7 @@ func Run() {
 		PhpVersions      []string
 		Database         string
 		OptionalServices []string
+		Apps             []string
 	}{}
 
 	err := survey.Ask(qs, &answers)
@@ -119,7 +128,12 @@ func configureNginx() {
 func installPhpFpm(phpVersions []string) {
 	fmt.Printf("\n👉 Installing php-fpm version(s): " + strings.Join(phpVersions, ", ") + "... ")
 	for _, phpVersion := range phpVersions {
-		err := command.Brew("install", "php@" + phpVersion).Run()
+		if brew.FormulaIsInstalled("php@" + phpVersion) {
+			fmt.Printf("Php " + phpVersion + " already is installed.\n")
+			continue
+		}
+
+		err := command.Brew("install", "php@"+phpVersion).Run()
 		if err != nil {
 			// Brew throws exit status 1 as warning, just go on...
 			if !strings.Contains(err.Error(), "exit status 1") {
