@@ -159,7 +159,7 @@ func installDatabase(database string) {
 	err := command.Brew("install", database).Run()
 	if err != nil {
 		// Brew throws exit status 1 as warning, just go on...
-		if !string.Contains(err.Error(), "exit status 1") {
+		if !strings.Contains(err.Error(), "exit status 1") {
 			panic(err)
 		}
 	}
