@@ -5,6 +5,7 @@ import (
 	"github.com/bjarn/sheepdog/internal/templates/stubs"
 	"github.com/bjarn/sheepdog/pkg/brew"
 	"github.com/bjarn/sheepdog/pkg/command"
+	"github.com/bjarn/sheepdog/pkg/service"
 	"github.com/bjarn/sheepdog/utils"
 	"os"
 	"os/user"
@@ -29,6 +30,7 @@ var qs = []*survey.Question{
 			Message: "Choose one or more PHP versions:",
 			Options: []string{"7.4", "7.3", "7.2", "7.1"},
 		},
+		Validate: survey.Required,
 	},
 	{
 		Name: "database",
@@ -74,6 +76,7 @@ func Run() {
 	// Configure required services
 	configureNginx()
 	installPhpFpm(answers.PhpVersions)
+	installDatabase(answers.Database)
 
 	// Loop through the optional services and install them if they've been selected
 	for _, optionalService := range answers.OptionalServices {
@@ -91,14 +94,14 @@ func Run() {
 // Configure Nginx
 func configureNginx() {
 	fmt.Printf("\n👉 Configuring Nginx... ")
-	file, err := os.Create("/usr/local/etc/nginx/nginx.conf")
+	file, err := os.Create(service.NginxPath + "/nginx.conf")
 
 	if err != nil {
 		panic(err)
 	}
 
 	// Create other required nginx directories
-	err = os.MkdirAll("/usr/local/etc/nginx/sheepdog/apps", 0755)
+	err = os.MkdirAll(service.NginxPath + "/sheepdog/apps", 0755)
 
 	if err != nil {
 		panic(err)
@@ -125,6 +128,7 @@ func configureNginx() {
 	fmt.Print("Done")
 }
 
+// Install PHP-FPM versions selected by the user
 func installPhpFpm(phpVersions []string) {
 	fmt.Printf("\n👉 Installing php-fpm version(s): " + strings.Join(phpVersions, ", ") + "... ")
 	for _, phpVersion := range phpVersions {
@@ -144,6 +148,25 @@ func installPhpFpm(phpVersions []string) {
 	fmt.Print("Done")
 }
 
+// Install the database service selected by the user
+func installDatabase(database string) {
+	fmt.Printf("\n👉 Installing database (" + database + ")... ")
+
+	if brew.FormulaIsInstalled(database) {
+		fmt.Printf("Database service " + database + " already is installed.\n")
+	}
+
+	err := command.Brew("install", database).Run()
+	if err != nil {
+		// Brew throws exit status 1 as warning, just go on...
+		if !string.Contains(err.Error(), "exit status 1") {
+			panic(err)
+		}
+	}
+
+	fmt.Print("Done")
+}
+
 // ##############################
 // Configure optional services
 // ##############################
@@ -151,7 +174,7 @@ func installPhpFpm(phpVersions []string) {
 // Configure Elasticsearch Virtual Host Config
 func configureElasticsearchNginxConf(domain string) {
 	fmt.Printf("\n👉 Configuring Elasticsearch... ")
-	file, err := os.Create("/usr/local/etc/nginx/sheepdog/apps/elasticsearch.conf")
+	file, err := os.Create(service.NginxPath + "/sheepdog/apps/elasticsearch.conf")
 
 	if err != nil {
 		panic(err)
@@ -174,7 +197,7 @@ func configureElasticsearchNginxConf(domain string) {
 // Configure MailHog Virtual Host Config
 func configureMailHogNginxConf(domain string) {
 	fmt.Printf("\n👉 Configuring MailHog... ")
-	file, err := os.Create("/usr/local/etc/nginx/sheepdog/apps/mailhog.conf")
+	file, err := os.Create(service.NginxPath + "/sheepdog/apps/mailhog.conf")
 
 	if err != nil {
 		panic(err)
