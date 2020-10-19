@@ -36,7 +36,7 @@ var qs = []*survey.Question{
 		Name: "database",
 		Prompt: &survey.Select{
 			Message: "Choose a database:",
-			Options: []string{"mysql@8.0", "mysql@5.7", "mysql@5.6", "mariadb"},
+			Options: []string{"mysql@5.7", "mysql@5.6", "mariadb"},
 		},
 	},
 	{
@@ -174,6 +174,8 @@ func installDatabase(database string) {
 
 	if brew.FormulaIsInstalled(database) {
 		fmt.Printf("Database service " + database + " already is installed.\n")
+		fmt.Print("Done")
+		return
 	}
 
 	if  database != "mysql@5.6" && brew.FormulaIsInstalled("mysql@5.6") {
@@ -181,9 +183,6 @@ func installDatabase(database string) {
 	}
 	if  database != "mysql@5.7" && brew.FormulaIsInstalled("mysql@5.7") {
 		uninstallDatabase("mysql@5.7")
-	}
-	if  database != "mysql@8" && brew.FormulaIsInstalled("mysql@8") {
-		uninstallDatabase("mysql@8")
 	}
 	if  database != "mariadb" && brew.FormulaIsInstalled("mariadb") {
 		uninstallDatabase("mariadb")
