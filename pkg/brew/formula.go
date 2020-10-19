@@ -6,10 +6,13 @@ import (
 )
 
 func FormulaIsInstalled(formula string) bool {
-	out, err := command.Brew("list", "|", "grep", formula).Output()
+	out, err := command.Brew("list", "--formula").Output()
+
 
 	if err != nil {
-		return false
+		if !strings.Contains(err.Error(), "exit status 1") {
+			return false
+		}
 	}
 
 	return strings.Contains(string(out), formula)

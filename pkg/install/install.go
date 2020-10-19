@@ -36,7 +36,7 @@ var qs = []*survey.Question{
 		Name: "database",
 		Prompt: &survey.Select{
 			Message: "Choose a database:",
-			Options: []string{"mysql@8.0", "mysql@5.7", "mariadb"},
+			Options: []string{"mysql@8.0", "mysql@5.7", "mysql@5.6", "mariadb"},
 		},
 	},
 	{
@@ -74,6 +74,7 @@ func Run() {
 	}
 
 	// Configure required services
+	installNginx()
 	configureNginx()
 	installPhpFpm(answers.PhpVersions)
 	installDatabase(answers.Database)
@@ -89,6 +90,25 @@ func Run() {
 	}
 
 	fmt.Printf("\n\n✨ Successfully installed Sheepdog! ✅\n")
+}
+
+// Install Nginx
+func installNginx() {
+	fmt.Printf("\n👉 Installing Nginx... ")
+
+	if brew.FormulaIsInstalled("nginx") {
+		fmt.Printf("Already installed.\n")
+		return
+	}
+
+	err := command.Brew("install", "nginx").Run()
+	if err != nil {
+		// Brew throws exit status 1 as warning, just go on...
+		if !strings.Contains(err.Error(), "exit status 1") {
+			panic(err)
+		}
+	}
+	fmt.Print("Done")
 }
 
 // Configure Nginx
@@ -156,6 +176,19 @@ func installDatabase(database string) {
 		fmt.Printf("Database service " + database + " already is installed.\n")
 	}
 
+	if  database != "mysql@5.6" && brew.FormulaIsInstalled("mysql@5.6") {
+		uninstallDatabase("mysql@5.6")
+	}
+	if  database != "mysql@5.7" && brew.FormulaIsInstalled("mysql@5.7") {
+		uninstallDatabase("mysql@5.7")
+	}
+	if  database != "mysql@8" && brew.FormulaIsInstalled("mysql@8") {
+		uninstallDatabase("mysql@8")
+	}
+	if  database != "mariadb" && brew.FormulaIsInstalled("mariadb") {
+		uninstallDatabase("mariadb")
+	}
+
 	err := command.Brew("install", database).Run()
 	if err != nil {
 		// Brew throws exit status 1 as warning, just go on...
@@ -165,6 +198,18 @@ func installDatabase(database string) {
 	}
 
 	fmt.Print("Done")
+}
+
+func uninstallDatabase(database string)  {
+	err := command.Brew("uninstall", database).Run()
+	if err != nil {
+		// Brew throws exit status 1 as warning, just go on...
+		if !strings.Contains(err.Error(), "exit status 1") {
+			panic(err)
+		}
+	}
+
+	fmt.Printf("\nService " + database + " has been uninstalled.\n")
 }
 
 // ##############################
