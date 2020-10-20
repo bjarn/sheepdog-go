@@ -35,8 +35,8 @@ var startCmd = &cobra.Command{
 		}
 
 		switch args[0] {
-		case service.Nginx.Name, service.MySql57.Name, service.MySql80.Name,
-			service.Redis.Name, service.Mailhog.Name, service.DnsMasq.Name:
+		case service.Nginx.Name, service.MySql57.Name, service.MySql56.Name,
+			service.MariaDb.Name, service.Redis.Name, service.MailHog.Name, service.DnsMasq.Name:
 			for _, s := range service.Services {
 				if s.Name == args[0] {
 					service.StartSingle(s)

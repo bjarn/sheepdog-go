@@ -1,6 +1,6 @@
 package service
 
-var Mailhog = Service{
+var MailHog = Service{
 	Name: "mailhog",
 	RequireRoot: false,
 }

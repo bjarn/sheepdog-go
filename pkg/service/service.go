@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/bjarn/sheepdog/pkg/command"
 	"os/exec"
+	"strings"
 )
 
 type Service struct {
@@ -10,7 +11,7 @@ type Service struct {
 	RequireRoot bool
 }
 
-var Services = []Service{Nginx, DnsMasq, MySql57, Redis, Mailhog}
+var Services = []Service{Nginx, DnsMasq, MySql57, Redis, MailHog}
 
 type Action string
 
@@ -45,4 +46,19 @@ func (service Service) Start() error {
 // Stop the service using Brew service
 func (service Service) Stop() error {
 	return service.Control(StopAction)
+}
+
+// Install and start the service
+func (service Service) Install() error {
+	err := command.Brew("install", service.Name).Run()
+	if err != nil {
+		// Brew throws exit status 1 as warning, just go on...
+		if !strings.Contains(err.Error(), "exit status 1") {
+			panic(err)
+		}
+	}
+
+	err = service.Start()
+
+	return err
 }

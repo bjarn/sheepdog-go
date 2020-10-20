@@ -28,7 +28,7 @@ var qs = []*survey.Question{
 		Name: "phpVersions",
 		Prompt: &survey.MultiSelect{
 			Message: "Choose one or more PHP versions:",
-			Options: []string{"7.4", "7.3", "7.2", "7.1"},
+			Options: []string{service.PhpFpm74.Name, service.PhpFpm73.Name, service.PhpFpm72.Name},
 		},
 		Validate: survey.Required,
 	},
@@ -36,14 +36,14 @@ var qs = []*survey.Question{
 		Name: "database",
 		Prompt: &survey.Select{
 			Message: "Choose a database:",
-			Options: []string{"mysql@5.7", "mysql@5.6", "mariadb"},
+			Options: []string{service.MySql57.Name, service.MySql56.Name, service.MariaDb.Name},
 		},
 	},
 	{
 		Name: "optionalServices",
 		Prompt: &survey.MultiSelect{
 			Message: "Optional services:",
-			Options: []string{"Redis", "Elasticsearch", "MailHog"},
+			Options: []string{service.Redis.Name, service.ElasticSearch.Name, service.MailHog.Name},
 		},
 	},
 	{
@@ -74,6 +74,7 @@ func Run() {
 	}
 
 	// Configure required services
+	installDnsMasq()
 	installNginx()
 	configureNginx()
 	installPhpFpm(answers.PhpVersions)
@@ -92,6 +93,24 @@ func Run() {
 	fmt.Printf("\n\n✨ Successfully installed Sheepdog! ✅\n")
 }
 
+// Install DnsMasq
+func installDnsMasq() {
+	fmt.Printf("\n👉 Installing DnsMasq... ")
+
+	if brew.FormulaIsInstalled(service.DnsMasq.Name) {
+		fmt.Printf("Already installed.\n")
+		return
+	}
+
+	err := service.DnsMasq.Install()
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print("Done")
+}
+
 // Install Nginx
 func installNginx() {
 	fmt.Printf("\n👉 Installing Nginx... ")
@@ -101,13 +120,12 @@ func installNginx() {
 		return
 	}
 
-	err := command.Brew("install", "nginx").Run()
+	err := service.Nginx.Install()
+
 	if err != nil {
-		// Brew throws exit status 1 as warning, just go on...
-		if !strings.Contains(err.Error(), "exit status 1") {
-			panic(err)
-		}
+		panic(err)
 	}
+
 	fmt.Print("Done")
 }
 
@@ -145,26 +163,40 @@ func configureNginx() {
 
 	_ = file.Chmod(0644)
 
+	err = service.Nginx.Restart()
+
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Print("Done")
 }
 
 // Install PHP-FPM versions selected by the user
 func installPhpFpm(phpVersions []string) {
 	fmt.Printf("\n👉 Installing php-fpm version(s): " + strings.Join(phpVersions, ", ") + "... ")
+
 	for _, phpVersion := range phpVersions {
 		if brew.FormulaIsInstalled("php@" + phpVersion) {
 			fmt.Printf("Php " + phpVersion + " already is installed.\n")
 			continue
 		}
 
-		err := command.Brew("install", "php@"+phpVersion).Run()
+		var err error
+		switch phpVersion {
+		case service.PhpFpm72.Name:
+			err = service.PhpFpm72.Install()
+		case service.PhpFpm73.Name:
+			err = service.PhpFpm73.Install()
+		case service.PhpFpm74.Name:
+			err = service.PhpFpm74.Install()
+		}
+
 		if err != nil {
-			// Brew throws exit status 1 as warning, just go on...
-			if !strings.Contains(err.Error(), "exit status 1") {
-				panic(err)
-			}
+			panic(err)
 		}
 	}
+
 	fmt.Print("Done")
 }
 
@@ -178,29 +210,40 @@ func installDatabase(database string) {
 		return
 	}
 
-	if  database != "mysql@5.6" && brew.FormulaIsInstalled("mysql@5.6") {
-		uninstallDatabase("mysql@5.6")
+	if  database != service.MySql56.Name && brew.FormulaIsInstalled(service.MySql56.Name) {
+		uninstallDatabase(service.MySql56)
 	}
-	if  database != "mysql@5.7" && brew.FormulaIsInstalled("mysql@5.7") {
-		uninstallDatabase("mysql@5.7")
+	if  database != service.MySql57.Name && brew.FormulaIsInstalled(service.MySql57.Name) {
+		uninstallDatabase(service.MySql57)
 	}
-	if  database != "mariadb" && brew.FormulaIsInstalled("mariadb") {
-		uninstallDatabase("mariadb")
+	if  database != service.MariaDb.Name && brew.FormulaIsInstalled(service.MariaDb.Name) {
+		uninstallDatabase(service.MariaDb)
 	}
 
-	err := command.Brew("install", database).Run()
+	var err error
+	switch database {
+	case service.MySql56.Name:
+		err = service.MySql56.Install()
+	case service.MySql57.Name:
+		err = service.MySql57.Install()
+	case service.MariaDb.Name:
+		err = service.MariaDb.Install()
+	}
+
 	if err != nil {
-		// Brew throws exit status 1 as warning, just go on...
-		if !strings.Contains(err.Error(), "exit status 1") {
-			panic(err)
-		}
+		panic(err)
 	}
 
 	fmt.Print("Done")
 }
 
-func uninstallDatabase(database string)  {
-	err := command.Brew("uninstall", database).Run()
+func uninstallDatabase(database service.Service)  {
+	err := database.Stop()
+	if err != nil {
+		panic(err)
+	}
+
+	err = command.Brew("uninstall", database.Name).Run()
 	if err != nil {
 		// Brew throws exit status 1 as warning, just go on...
 		if !strings.Contains(err.Error(), "exit status 1") {
@@ -208,7 +251,7 @@ func uninstallDatabase(database string)  {
 		}
 	}
 
-	fmt.Printf("\nService " + database + " has been uninstalled.\n")
+	fmt.Printf("\nService " + database.Name + " has been uninstalled.\n")
 }
 
 // ##############################
@@ -253,7 +296,7 @@ func configureMailHogNginxConf(domain string) {
 		domain,
 	}
 
-	tmpl := template.Must(template.New("mailhog-nginx-tmpl").Parse(stubs.MailhogNginxConf))
+	tmpl := template.Must(template.New("mailhog-nginx-tmpl").Parse(stubs.MailHogNginxConf))
 	err = tmpl.Execute(file, data)
 
 	_ = file.Chmod(0644)

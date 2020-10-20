@@ -1,6 +1,6 @@
 package stubs
 
-const MailhogNginxConf = `
+const MailHogNginxConf = `
 {{ $data := . -}}
 server {
     listen 80;
