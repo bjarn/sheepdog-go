@@ -139,7 +139,7 @@ func configureNginx() {
 	}
 
 	// Create other required nginx directories
-	err = os.MkdirAll(service.NginxPath + "/sheepdog/apps", 0755)
+	err = os.MkdirAll(service.NginxPath+"/sheepdog/apps", 0755)
 
 	if err != nil {
 		panic(err)
@@ -210,13 +210,16 @@ func installDatabase(database string) {
 		return
 	}
 
-	if  database != service.MySql56.Name && brew.FormulaIsInstalled(service.MySql56.Name) {
+	if database != service.MySql56.Name &&
+		brew.FormulaIsInstalled(service.MySql56.Name) {
 		uninstallDatabase(service.MySql56)
 	}
-	if  database != service.MySql57.Name && brew.FormulaIsInstalled(service.MySql57.Name) {
+	if database != service.MySql57.Name &&
+		brew.FormulaIsInstalled(service.MySql57.Name) {
 		uninstallDatabase(service.MySql57)
 	}
-	if  database != service.MariaDb.Name && brew.FormulaIsInstalled(service.MariaDb.Name) {
+	if database != service.MariaDb.Name &&
+		brew.FormulaIsInstalled(service.MariaDb.Name) {
 		uninstallDatabase(service.MariaDb)
 	}
 
@@ -237,7 +240,9 @@ func installDatabase(database string) {
 	fmt.Print("Done")
 }
 
-func uninstallDatabase(database service.Service)  {
+func uninstallDatabase(s service.IService) {
+	var database = s.(*service.Service)
+
 	err := database.Stop()
 	if err != nil {
 		panic(err)

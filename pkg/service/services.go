@@ -5,12 +5,20 @@ import (
 	"github.com/bjarn/sheepdog/utils"
 )
 
+// TODO: Make this dynamic by getting the enabled services from the user's config
+var Services = []string{DnsMasq.Name, Nginx.Name, PhpFpm72.Name, PhpFpm73.Name, PhpFpm74.Name,
+	MySql56.Name, MySql57.Name, MariaDb.Name, Redis.Name}
+var IServices = []IService{DnsMasq, Nginx, PhpFpm72, PhpFpm73, PhpFpm74,
+	MySql56, MySql57, MariaDb, Redis}
+
 // Restart a single service.
-func RestartSingle(service Service) {
-	fmt.Printf("Restarting %s... ", service.Name)
+func RestartSingle(service IService, serviceName string) {
+	fmt.Printf("Restarting %s... ", serviceName)
+
 	err := service.Restart()
+
 	if err != nil {
-		fmt.Printf("An error occurred whilst restarting %s: %s\n", service.Name, err)
+		fmt.Printf("An error occurred whilst restarting %s: %s\n", serviceName, err)
 	} else {
 		fmt.Print("Done\n")
 	}
@@ -23,17 +31,17 @@ func RestartAll() {
 		return
 	}
 
-	for _, service := range Services {
-		RestartSingle(service)
+	for index, service := range Services {
+		RestartSingle(IServices[index], service)
 	}
 }
 
 // Stop a single service.
-func StopSingle(service Service) {
-	fmt.Printf("Stopping %s... ", service.Name)
+func StopSingle(service IService, serviceName string) {
+	fmt.Printf("Stopping %s... ", serviceName)
 	err := service.Stop()
 	if err != nil {
-		fmt.Printf("An error occurred whilst stopping %s: %s\n", service.Name, err)
+		fmt.Printf("An error occurred whilst stopping %s: %s\n", serviceName, err)
 	} else {
 		fmt.Print("Done\n")
 	}
@@ -46,17 +54,19 @@ func StopAll() {
 		return
 	}
 
-	for _, service := range Services {
-		StopSingle(service)
+	for index, service := range Services {
+		StopSingle(IServices[index], service)
 	}
 }
 
 // Start a single service.
-func StartSingle(service Service) {
-	fmt.Printf("Start %s... ", service.Name)
+func StartSingle(service IService, serviceName string) {
+	fmt.Printf("Start %s... ", serviceName)
+
 	err := service.Start()
+
 	if err != nil {
-		fmt.Printf("An error occurred whilst start %s: %s\n", service.Name, err)
+		fmt.Printf("An error occurred whilst start %s: %s\n", serviceName, err)
 	} else {
 		fmt.Print("Done\n")
 	}
@@ -69,7 +79,7 @@ func StartAll() {
 		return
 	}
 
-	for _, service := range Services {
-		StartSingle(service)
+	for index, service := range Services {
+		StartSingle(IServices[index], service)
 	}
 }

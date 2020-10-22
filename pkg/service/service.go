@@ -6,51 +6,59 @@ import (
 	"strings"
 )
 
+type IService interface {
+	Control(action Action) error
+	Restart() error
+	Start() error
+	Stop() error
+	Install() error
+	Configure() error
+}
+
 type Service struct {
+	IService
 	Name        string
 	RequireRoot bool
 }
 
-var Services = []Service{Nginx, DnsMasq, MySql57, Redis, MailHog}
-
 type Action string
 
 const (
-	StartAction Action = "start"
-	StopAction Action = "stop"
+	StartAction   Action = "start"
+	StopAction    Action = "stop"
 	RestartAction Action = "restart"
 )
 
-func (service Service) Control(action Action) error {
+func Control(service string, requireRoot bool, action Action) error {
 	var cmd *exec.Cmd
 
-	if service.RequireRoot {
-		cmd = command.Sudo("brew", "services", string(action), service.Name)
+	if requireRoot {
+		cmd = command.Sudo("brew", "services", string(action), service)
 	} else {
-		cmd = command.Brew("services", string(action), service.Name)
+		cmd = command.Brew("services", string(action), service)
 	}
 
 	return cmd.Run()
 }
 
 // Restart the service using Brew service
-func (service Service) Restart() error {
-	return service.Control(RestartAction)
+func Restart(s IService) error {
+	return s.Control(RestartAction)
 }
 
 // Start the service using Brew service
-func (service Service) Start() error {
-	return service.Control(StartAction)
+func Start(s IService) error {
+	return s.Control(StartAction)
 }
 
 // Stop the service using Brew service
-func (service Service) Stop() error {
-	return service.Control(StopAction)
+func Stop(s IService) error {
+	return s.Control(StopAction)
 }
 
 // Install and start the service
-func (service Service) Install() error {
-	err := command.Brew("install", service.Name).Run()
+func Install(service IService, serviceName string) error {
+	err := command.Brew("install", serviceName).Run()
 	if err != nil {
 		// Brew throws exit status 1 as warning, just go on...
 		if !strings.Contains(err.Error(), "exit status 1") {

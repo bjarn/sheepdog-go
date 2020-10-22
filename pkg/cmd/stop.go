@@ -29,17 +29,18 @@ var stopCmd = &cobra.Command{
 	Short: "Stop a service",
 	Long: `Stop a service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if args[0] == "" {
+		if len(args) <= 0 {
 			service.StopAll()
 			return
 		}
 
 		switch args[0] {
-		case service.Nginx.Name, service.MySql57.Name, service.MySql56.Name,
-			service.MariaDb.Name, service.Redis.Name, service.MailHog.Name, service.DnsMasq.Name:
-			for _, s := range service.Services {
-				if s.Name == args[0] {
-					service.StartSingle(s)
+		case service.Nginx.Name, service.PhpFpm74.Name, service.PhpFpm73.Name, service.PhpFpm72.Name,
+			service.MySql57.Name, service.MySql56.Name, service.MariaDb.Name, service.Redis.Name,
+			service.DnsMasq.Name:
+			for index, s := range service.Services {
+				if s == args[0] {
+					service.StopSingle(service.IServices[index], s)
 				}
 			}
 			break
