@@ -1,5 +1,10 @@
 package service
 
+import "github.com/bjarn/sheepdog/pkg/sheepdog"
+
+const ResolverPath = "/etc/resolver"
+const DnsMasqConfigPath = "/usr/local/etc/dnsmasq.conf"
+
 type DnsMasqService Service
 
 var DnsMasq = &DnsMasqService{
@@ -28,5 +33,11 @@ func (service *DnsMasqService) Install() error   {
 }
 
 func (service *DnsMasqService) Configure() error {
+	config, err := sheepdog.GetConfig()
+
+	if err != nil {
+		panic(err)
+	}
+
 	return nil
 }

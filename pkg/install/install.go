@@ -6,7 +6,7 @@ import (
 	"github.com/bjarn/sheepdog/pkg/brew"
 	"github.com/bjarn/sheepdog/pkg/command"
 	"github.com/bjarn/sheepdog/pkg/service"
-	"github.com/bjarn/sheepdog/utils"
+	"github.com/bjarn/sheepdog/pkg/sheepdog"
 	"os"
 	"os/user"
 	"strings"
@@ -73,6 +73,12 @@ func Run() {
 		return
 	}
 
+	// Configure Sheepdog
+	err = sheepdog.CreateConfig(answers.Domain)
+	if err != nil {
+		return
+	}
+
 	// Configure required services
 	installDnsMasq()
 	installNginx()
@@ -103,6 +109,12 @@ func installDnsMasq() {
 	}
 
 	err := service.DnsMasq.Install()
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = service.DnsMasq.Configure()
 
 	if err != nil {
 		panic(err)
@@ -155,7 +167,7 @@ func configureNginx() {
 		SheepdogHomeDir string
 	}{
 		currentUser.Username,
-		utils.SheepdogHomeDir(),
+		sheepdog.HomeDir(),
 	}
 
 	tmpl := template.Must(template.New("nginx-tmpl").Parse(stubs.NginxConfTemplate))

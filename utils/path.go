@@ -10,12 +10,3 @@ func UserHomeDir() string {
 	}
 	return path
 }
-
-// Get the absolute path to sheepdog's home directory or fallback to the relative path.
-func SheepdogHomeDir() string {
-	path, err := os.UserHomeDir()
-	if err != nil {
-		return "~/"
-	}
-	return path + "/.sheepdog"
-}
